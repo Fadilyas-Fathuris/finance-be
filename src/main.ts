@@ -14,6 +14,8 @@ async function bootstrap() {
         'http://localhost:5174',
         'http://43.157.247.68',
         'http://43.157.247.68:3000',
+        'http://niskala-finance.iyas.my.id',
+        'https://niskala-finance.iyas.my.id',
       ];
 
   app.enableCors({
