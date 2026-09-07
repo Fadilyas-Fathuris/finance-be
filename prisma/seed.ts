@@ -89,7 +89,7 @@ async function main() {
       update: {
         name: u.name,
         role: u.role as any,
-        // Do not update passwordHash on existing users to prevent resetting user-changed passwords
+        passwordHash,
       },
       create: {
         email: u.email,

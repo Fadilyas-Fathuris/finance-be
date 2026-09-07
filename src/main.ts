@@ -24,6 +24,9 @@ async function bootstrap() {
     credentials: true,
   });
 
+  // Set Global Prefix untuk seluruh API endpoint (/api/...)
+  app.setGlobalPrefix('api');
+
   // ===== KONFIGURASI SWAGGER =====
   const config = new DocumentBuilder()
     .setTitle('Niskala Finance API')
