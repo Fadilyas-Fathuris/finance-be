@@ -1,0 +1,360 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  CEO
+  CFO
+  MANAGER
+  STAFF
+}
+
+enum BusinessLine {
+  global
+  niskala
+  aksalab
+  snapcala
+}
+
+model User {
+  id                  String        @id @default(uuid())
+  email               String        @unique
+  passwordHash        String
+  name                String
+  role                Role          @default(STAFF)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  
+  // Relasi Audit
+  createdTransactions Transaction[] @relation("CreatedTransactions")
+  updatedTransactions Transaction[] @relation("UpdatedTransactions")
+  deletedTransactions Transaction[] @relation("DeletedTransactions")
+
+  createdOpex         Opex[]        @relation("CreatedOpex")
+  updatedOpex         Opex[]        @relation("UpdatedOpex")
+  deletedOpex         Opex[]        @relation("DeletedOpex")
+
+  createdInvoices     Invoice[]     @relation("CreatedInvoices")
+  updatedInvoices     Invoice[]     @relation("UpdatedInvoices")
+  deletedInvoices     Invoice[]     @relation("DeletedInvoices")
+
+  createdDisbursements InvestorDisbursement[] @relation("CreatedDisbursements")
+}
+
+model Transaction {
+  id             String          @id @default(uuid())
+  date           DateTime        @default(now())
+  category       String
+  description    String
+  amount         Decimal         @db.Decimal(15, 2)
+  type           TransactionType
+  businessLine   BusinessLine    @default(niskala)
+  receiptImage   String?
+
+  // Audit Fields
+  createdById    String?
+  createdBy      User?           @relation("CreatedTransactions", fields: [createdById], references: [id])
+  updatedById    String?
+  updatedBy      User?           @relation("UpdatedTransactions", fields: [updatedById], references: [id])
+  
+  deletedAt      DateTime?
+  deletedById    String?
+  deletedBy      User?           @relation("DeletedTransactions", fields: [deletedById], references: [id])
+  deletionReason String?
+
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Subscriber {
+  id          String           @id @default(uuid())
+  name        String
+  productName String
+  units       Int
+  status      SubscriberStatus @default(unpaid)
+  startDate   DateTime
+  dueDate     DateTime
+  city        String?
+  monthly     Decimal          @db.Decimal(15, 2)
+  type        SubscriberType
+  quotaAmount Float?
+  businessLine BusinessLine    @default(niskala)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model Project {
+  id        String        @id @default(uuid())
+  name      String
+  client    String
+  type      String
+  status    ProjectStatus @default(pending)
+  value     Decimal       @db.Decimal(15, 2)
+  paid      Decimal       @db.Decimal(15, 2)
+  start     DateTime
+  deadline  DateTime
+  businessLine BusinessLine  @default(niskala)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model Opex {
+  id             String        @id @default(uuid())
+  name           String
+  cat            String
+  amount         Decimal       @db.Decimal(15, 2)
+  freq           OpexFreq      @default(monthly)
+  businessLine   BusinessLine  @default(global)
+  receiptImage   String?
+
+  // Audit Fields
+  createdById    String?
+  createdBy      User?         @relation("CreatedOpex", fields: [createdById], references: [id])
+  updatedById    String?
+  updatedBy      User?         @relation("UpdatedOpex", fields: [updatedById], references: [id])
+  
+  deletedAt      DateTime?
+  deletedById    String?
+  deletedBy      User?         @relation("DeletedOpex", fields: [deletedById], references: [id])
+  deletionReason String?
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Employee {
+  id           String       @id @default(uuid())
+  name         String
+  role         String
+  base         Decimal      @db.Decimal(15, 2)
+  transport    Decimal      @db.Decimal(15, 2)
+  meal         Decimal      @db.Decimal(15, 2)
+  bonus        Decimal      @db.Decimal(15, 2)
+  bpjsk        Decimal      @db.Decimal(15, 2)
+  bpjstk       Decimal      @db.Decimal(15, 2)
+  otherCut     Decimal      @db.Decimal(15, 2)
+  thp          Decimal      @db.Decimal(15, 2)
+  businessLine BusinessLine @default(global)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Budget {
+  id           String       @id @default(uuid())
+  incomeTarget Decimal      @db.Decimal(15, 2)
+  gaji         Decimal      @db.Decimal(15, 2)
+  server       Decimal      @db.Decimal(15, 2)
+  marketing    Decimal      @db.Decimal(15, 2)
+  operasional  Decimal      @db.Decimal(15, 2)
+  event        Decimal      @db.Decimal(15, 2)
+  businessLine BusinessLine @default(global)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Invoice {
+  id             String        @id @default(uuid())
+  num            String        @unique
+  client         String
+  clientAddr     String
+  date           DateTime
+  due            DateTime
+  status         InvoiceStatus @default(unpaid)
+  notes          String?
+  businessLine   BusinessLine  @default(niskala)
+  receiptImage   String?
+
+  // Audit Fields
+  createdById    String?
+  createdBy      User?         @relation("CreatedInvoices", fields: [createdById], references: [id])
+  updatedById    String?
+  updatedBy      User?         @relation("UpdatedInvoices", fields: [updatedById], references: [id])
+  
+  deletedAt      DateTime?
+  deletedById    String?
+  deletedBy      User?         @relation("DeletedInvoices", fields: [deletedById], references: [id])
+  deletionReason String?
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  items          InvoiceItem[]
+}
+
+model InvoiceItem {
+  id        String  @id @default(uuid())
+  desc      String
+  qty       Int
+  price     Decimal @db.Decimal(15, 2)
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
+model ProfitShareScheme {
+  id                String               @id @default(uuid())
+  name              String
+  isAuto            Boolean
+  isProductBased    Boolean              @default(false)
+  manualBaseAmount  Decimal              @db.Decimal(15, 2)
+  productPrice      Decimal?             @db.Decimal(15, 2)
+  productQty        Int?
+  hppPerYear        Decimal?             @db.Decimal(15, 2)
+  companyReservePct Float
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  deductions        DeductionItem[]
+  partners          ProfitSharePartner[]
+}
+
+model ProfitSharePartner {
+  id         String            @id @default(uuid())
+  name       String
+  percentage Float
+  schemeId   String
+  scheme     ProfitShareScheme @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+}
+
+model DeductionItem {
+  id       String            @id @default(uuid())
+  desc     String
+  amount   Decimal           @db.Decimal(15, 2)
+  schemeId String
+  scheme   ProfitShareScheme @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+}
+
+model Quotation {
+  id                   String               @id @default(uuid())
+  client               String
+  date                 DateTime
+  categoryName         String
+  barterValue          Decimal              @db.Decimal(15, 2)
+  garansiText          String
+  termsText            String
+  changeRequestText    String
+  authorizedName       String?
+  clientRepresentative String?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  items                QuotationItem[]
+  milestones           QuotationMilestone[]
+}
+
+model QuotationItem {
+  id          String    @id @default(uuid())
+  scope       String
+  publishRate Decimal   @db.Decimal(15, 2)
+  discount    Float
+  details     String
+  workDays    Int
+  quotationId String
+  quotation   Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+}
+
+model QuotationMilestone {
+  id          String    @id @default(uuid())
+  scope       String
+  percentage  Float
+  quotationId String
+  quotation   Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+}
+
+enum TransactionType {
+  in
+  out
+}
+
+enum SubscriberStatus {
+  active
+  unpaid
+}
+
+enum SubscriberType {
+  subscription
+  quota
+}
+
+enum ProjectStatus {
+  ongoing
+  done
+  pending
+}
+
+enum OpexFreq {
+  monthly
+  yearly
+}
+
+enum InvoiceStatus {
+  paid
+  unpaid
+  partial
+}
+
+enum DisbursementStatus {
+  pending
+  paid
+  cancelled
+}
+
+model InvestorDisbursement {
+  id             String             @id @default(uuid())
+  investorName   String
+  businessLine   BusinessLine
+  periodMonth    Int
+  periodYear     Int
+  netProfit      Decimal            @db.Decimal(15, 2)
+  sharePercent   Float
+  amount         Decimal            @db.Decimal(15, 2)
+  status         DisbursementStatus @default(pending)
+  paidAt         DateTime?
+  receiptImage   String?
+  notes          String?
+  createdById    String?
+  createdBy      User?              @relation("CreatedDisbursements", fields: [createdById], references: [id])
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+}
+
+model VenuePartner {
+  id                    String            @id @default(uuid())
+  name                  String
+  location              String
+  type                  String            @default("static")
+  contactPerson         String
+  phone                 String?
+  bankName              String?
+  bankAccount           String?
+  totalTransactions     Int               @default(0)
+  pricePerTrx           Decimal           @default(35000) @db.Decimal(15, 2)
+  monthlyRevenue        Decimal           @default(0) @db.Decimal(15, 2)
+  baseSharePercent      Float             @default(15)
+  bonusSharePercent     Float             @default(20)
+  tierThreshold         Int               @default(50)
+  customSharePercent    Float?
+  status                String            @default("active")
+  businessLine          BusinessLine      @default(snapcala)
+  lastSettlementMonth   String?
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  settlements           VenueSettlement[]
+}
+
+model VenueSettlement {
+  id                    String       @id @default(uuid())
+  venueId               String
+  venue                 VenuePartner @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  venueName             String
+  periodMonth           String
+  totalTransactions     Int
+  pricePerTrx           Decimal      @db.Decimal(15, 2)
+  grossRevenue          Decimal      @db.Decimal(15, 2)
+  effectiveSharePercent Float
+  partnerPayout         Decimal      @db.Decimal(15, 2)
+  snapcalaNet           Decimal      @db.Decimal(15, 2)
+  status                String       @default("settled")
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+}
