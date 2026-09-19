@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { UpdateInvoiceDto } from './dto/update-invoice.dto';
-import { InvoiceStatus } from '@prisma/client';
 
 @Injectable()
 export class InvoicesService {
@@ -14,7 +13,6 @@ export class InvoicesService {
     return this.prisma.invoice.create({
       data: {
         ...invoiceData,
-        status: invoiceData.status as InvoiceStatus,
         businessLine: invoiceData.businessLine || 'niskala',
         createdById: invoiceData.createdById || null,
         date: new Date(invoiceData.date),
@@ -57,7 +55,6 @@ export class InvoicesService {
         where: { id },
         data: {
           ...invoiceData,
-          status: invoiceData.status ? (invoiceData.status as InvoiceStatus) : undefined,
           date: invoiceData.date ? new Date(invoiceData.date) : undefined,
           due: invoiceData.due ? new Date(invoiceData.due) : undefined,
           updatedById: invoiceData.updatedById || undefined,

@@ -11,6 +11,8 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
     "db:clean": "ts-node prisma/clean-dummy.ts",
+    "db:clean:venue": "ts-node prisma/clean-dummy.ts --venue",
+    "db:clean:profit-share": "ts-node prisma/clean-dummy.ts --profit-share",
     "db:generate": "prisma generate",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",

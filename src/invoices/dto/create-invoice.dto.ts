@@ -1,4 +1,4 @@
-import { BusinessLine, InvoiceStatus } from '@prisma/client';
+import { BusinessLine } from '@prisma/client';
 
 export class CreateInvoiceItemDto {
   desc: string;
@@ -12,7 +12,6 @@ export class CreateInvoiceDto {
   clientAddr: string;
   date: string;
   due: string;
-  status: InvoiceStatus;
   notes?: string;
   businessLine?: BusinessLine;
   createdById?: string;
