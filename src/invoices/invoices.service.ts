@@ -13,6 +13,9 @@ export class InvoicesService {
     return this.prisma.invoice.create({
       data: {
         ...invoiceData,
+        bankName: invoiceData.bankName || 'BANK MANDIRI',
+        bankAccount: invoiceData.bankAccount || '1370024220468',
+        bankHolder: invoiceData.bankHolder || 'FARIS DWI RAMADHAN',
         businessLine: invoiceData.businessLine || 'niskala',
         createdById: invoiceData.createdById || null,
         date: new Date(invoiceData.date),

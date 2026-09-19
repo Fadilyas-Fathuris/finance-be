@@ -164,6 +164,9 @@ model Invoice {
   date           DateTime
   due            DateTime
   notes          String?
+  bankName       String?       @default("BANK MANDIRI")
+  bankAccount    String?       @default("1370024220468")
+  bankHolder     String?       @default("FARIS DWI RAMADHAN")
   businessLine   BusinessLine  @default(niskala)
   receiptImage   String?
 

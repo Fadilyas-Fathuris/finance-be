@@ -13,6 +13,9 @@ export class CreateInvoiceDto {
   date: string;
   due: string;
   notes?: string;
+  bankName?: string;
+  bankAccount?: string;
+  bankHolder?: string;
   businessLine?: BusinessLine;
   createdById?: string;
   updatedById?: string;
