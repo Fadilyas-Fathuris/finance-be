@@ -8,7 +8,9 @@
   "scripts": {
     "build": "nest build",
     "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
+    "db:clean": "ts-node prisma/clean-dummy.ts",
     "db:generate": "prisma generate",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
